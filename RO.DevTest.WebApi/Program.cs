@@ -1,6 +1,8 @@
 using RO.DevTest.Application;
 using RO.DevTest.Infrastructure.IoC;
 using RO.DevTest.Persistence.IoC;
+using RO.DevTest.Application.IoC;
+using RO.DevTest.WebApi.Middlewares;
 
 namespace RO.DevTest.WebApi;
 
@@ -13,16 +15,8 @@ public class Program {
         builder.Services.AddSwaggerGen();
 
         builder.Services.InjectPersistenceDependencies()
-            .InjectInfrastructureDependencies();
-
-        // Add Mediatr to program
-        builder.Services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssemblies(
-                typeof(ApplicationLayer).Assembly,
-                typeof(Program).Assembly
-            );
-        });
+            .InjectInfrastructureDependencies()
+            .InjectApplicationDependencies();
 
         var app = builder.Build();
 
@@ -35,6 +29,8 @@ public class Program {
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
+
+        app.UseMiddleware<ExceptionMiddleware>();
 
         app.MapControllers();
 
