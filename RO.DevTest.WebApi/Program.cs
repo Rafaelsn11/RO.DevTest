@@ -15,7 +15,7 @@ public class Program {
         builder.Services.AddSwaggerGen();
 
         builder.Services.InjectPersistenceDependencies()
-            .InjectInfrastructureDependencies()
+            .InjectInfrastructureDependencies(builder.Configuration)
             .InjectApplicationDependencies();
 
         var app = builder.Build();
