@@ -80,5 +80,7 @@ public static class InfrastructureDependecyInjector
             
         services.AddScoped<IAccessTokenValidator>(_ => 
             new JwtTokenValidator(signingKey!));
+
+        services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
     }
 }

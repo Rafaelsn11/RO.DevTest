@@ -36,11 +36,13 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
             throw new InvalidLoginException();
         
         var accessToken = _accessTokenGenerator.Generate(user.Id);
+        var refreshToken = await CreateAndSaveRefreshToken(user);
 
         return new LoginResponse
         {
             AccessToken = accessToken,
-            ExpirationDate = _accessTokenGenerator.GetExpirationDate()
+            ExpirationDate = _accessTokenGenerator.GetExpirationDate(),
+            RefreshToken = refreshToken
         };
    
     }

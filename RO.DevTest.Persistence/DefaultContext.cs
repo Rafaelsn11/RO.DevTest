@@ -10,6 +10,8 @@ public class DefaultContext : IdentityDbContext<User> {
 
     public DefaultContext(DbContextOptions<DefaultContext> options) : base(options) { }
 
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder) {
         builder.HasPostgresExtension("uuid-ossp");
         builder.ApplyConfigurationsFromAssembly(typeof(DefaultContext).Assembly);
