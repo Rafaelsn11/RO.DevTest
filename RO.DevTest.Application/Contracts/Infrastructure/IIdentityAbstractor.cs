@@ -98,4 +98,15 @@ public interface IIdentityAbstractor {
     /// A <see cref="Task{IdentityResult}"/>
     /// </returns>
     Task<IdentityResult> DeleteUser(User user);
+    
+    /// <summary>
+    /// Updates a <see cref="User"/> in the database
+    /// </summary>
+    /// <param name="user">
+    /// The <see cref="User"/> to be updated
+    /// </param>
+    /// <returns>
+    /// A <see cref="Task{IdentityResult}"/>
+    /// </returns>
+    Task<IdentityResult> UpdateUserAsync(User user);
 }
