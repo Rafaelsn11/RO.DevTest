@@ -2,8 +2,8 @@
 using RO.DevTest.Application.Contracts.Infrastructure;
 using RO.DevTest.Application.Contracts.Infrastructure.Security;
 using RO.DevTest.Application.Contracts.Persistance.Repositories;
-using RO.DevTest.Domain.Entities;
 using RO.DevTest.Domain.Exception;
+
 namespace RO.DevTest.Application.Features.Auth.Commands.LoginCommand;
 
 public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse> 
@@ -49,7 +49,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
 
     private async Task<string> CreateAndSaveRefreshToken(Domain.Entities.User user)
     {
-        var refreshToken = new RefreshToken
+        var refreshToken = new Domain.Entities.RefreshToken
         {
             Value = _refreshTokenGenerator.Generate(),
             UserId = user.Id

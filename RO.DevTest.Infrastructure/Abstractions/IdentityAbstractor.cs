@@ -56,4 +56,7 @@ public class IdentityAbstractor : IIdentityAbstractor {
     }
     
     public async Task<IdentityResult> UpdateUserAsync(User user) => await _userManager.UpdateAsync(user);
+
+    public async Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
+        => await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
 }

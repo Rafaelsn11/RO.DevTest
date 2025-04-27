@@ -2,8 +2,11 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
+using RO.DevTest.Application.Features.User.Commands.ChangePasswordUserCommand;
 using RO.DevTest.Application.Features.User.Commands.CreateUserCommand;
 using RO.DevTest.Application.Features.User.Commands.EditUserCommand;
+using RO.DevTest.Domain.Enums;
+using RO.DevTest.WebApi.Attributes;
 
 namespace RO.DevTest.WebApi.Controllers;
 
@@ -14,7 +17,7 @@ public class UsersController(IMediator mediator) : Controller {
 
     [HttpPost]
     [ProducesResponseType(typeof(CreateUserResult), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(CreateUserResult), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateUser(CreateUserCommand request) {
         CreateUserResult response = await _mediator.Send(request);
         return Created(HttpContext.Request.GetDisplayUrl(), response);
@@ -22,9 +25,21 @@ public class UsersController(IMediator mediator) : Controller {
 
     [HttpPut]
     [ProducesResponseType(typeof(EditUserResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(EditUserResult), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [AuthorizeRoles(UserRoles.Admin, UserRoles.Customer)]
     public async Task<IActionResult> EditUser(EditUserCommand request) {
         EditUserResult response = await _mediator.Send(request);
         return Ok(response);
+    }
+
+    [HttpPut("change-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [AuthorizeRoles(UserRoles.Admin, UserRoles.Customer)]
+    public async Task<IActionResult> ChangePassword(ChangePasswordUserCommand request) 
+    {
+        await _mediator.Send(request);
+        return NoContent();
     }
 }

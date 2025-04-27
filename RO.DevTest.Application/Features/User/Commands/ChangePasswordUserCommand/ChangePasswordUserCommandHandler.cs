@@ -3,22 +3,21 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using RO.DevTest.Application.Contracts.Infrastructure;
 using RO.DevTest.Application.Contracts.Infrastructure.Services.LoggedUser;
-using RO.DevTest.Domain.Entities;
 using RO.DevTest.Domain.Exception;
 
-namespace RO.DevTest.Application.Features.User.Commands.EditUserCommand;
+namespace RO.DevTest.Application.Features.User.Commands.ChangePasswordUserCommand;
 
-public class EditUserCommandHandler : IRequestHandler<EditUserCommand, EditUserResult> {
+public class ChangePasswordUserCommandHandler : IRequestHandler<ChangePasswordUserCommand> {
     private readonly IIdentityAbstractor _identityAbstractor;
     private readonly ILoggedUser _loggedUser;
 
-    public EditUserCommandHandler(IIdentityAbstractor identityAbstractor, ILoggedUser loggedUser) 
+    public ChangePasswordUserCommandHandler(IIdentityAbstractor identityAbstractor, ILoggedUser loggedUser) 
     {
         _identityAbstractor = identityAbstractor;
         _loggedUser = loggedUser;
     }
 
-    public async Task<EditUserResult> Handle(EditUserCommand request, CancellationToken cancellationToken) {
+    public async Task Handle(ChangePasswordUserCommand request, CancellationToken cancellationToken) {
         await Validate(request, cancellationToken);
 
         var loggedUser = await _loggedUser.User();
@@ -27,17 +26,14 @@ public class EditUserCommandHandler : IRequestHandler<EditUserCommand, EditUserR
         if (user is null)
             throw new NotFoundException("Usuário não encontrado");
 
-        request.UpdateUser(user);
-        IdentityResult updateResult = await _identityAbstractor.UpdateUserAsync(user);
+        IdentityResult changePasswordResult = await _identityAbstractor.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
         
-        if (!updateResult.Succeeded)
-            throw new BadRequestException(updateResult);
-
-        return new EditUserResult(user);
+        if (!changePasswordResult.Succeeded)
+            throw new BadRequestException(changePasswordResult);
     }
 
-    private async Task Validate(EditUserCommand request, CancellationToken cancellationToken) {
-        EditUserCommandValidator validator = new();
+    private async Task Validate(ChangePasswordUserCommand request, CancellationToken cancellationToken) {
+        ChangePasswordUserCommandValidator validator = new();
         ValidationResult validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)

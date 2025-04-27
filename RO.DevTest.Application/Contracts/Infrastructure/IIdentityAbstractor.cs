@@ -109,4 +109,13 @@ public interface IIdentityAbstractor {
     /// A <see cref="Task{IdentityResult}"/>
     /// </returns>
     Task<IdentityResult> UpdateUserAsync(User user);
+
+    /// <summary>
+    /// Changes a <see cref="User"/>'s password in the database
+    /// </summary>
+    /// <param name="user">The user whose password will be changed</param>
+    /// <param name="currentPassword">The current password</param>
+    /// <param name="newPassword">The new password</param>
+    /// <returns>A <see cref="Task{IdentityResult}"/></returns>
+    Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword);
 }

@@ -2,12 +2,10 @@ using FluentValidation;
 
 namespace RO.DevTest.Application.Features.User.Commands.EditUserCommand;
 
-public class EditUserCommandValidator : AbstractValidator<EditUserCommand> {
-    public EditUserCommandValidator() {
-        RuleFor(x => x.Id)
-            .NotEmpty()
-            .WithMessage("O ID do usuário é obrigatório");
-
+public class EditUserCommandValidator : AbstractValidator<EditUserCommand> 
+{
+    public EditUserCommandValidator() 
+    {
         RuleFor(x => x.UserName)
             .NotEmpty()
             .WithMessage("O nome de usuário é obrigatório")

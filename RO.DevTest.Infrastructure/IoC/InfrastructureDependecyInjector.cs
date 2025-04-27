@@ -6,10 +6,13 @@ using RO.DevTest.Application.Contracts.Infrastructure.Security;
 using RO.DevTest.Domain.Entities;
 using RO.DevTest.Infrastructure.Abstractions;
 using RO.DevTest.Infrastructure.Security.Token.Access.Generator;
-using RO.DevTest.Infrastructure.Security.Token.Access.Validator;
 using RO.DevTest.Infrastructure.Security.Token.Refresh;
 using RO.DevTest.Persistence;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using RO.DevTest.Application.Contracts.Infrastructure.Services.LoggedUser;
+using RO.DevTest.Infrastructure.Services.LoggedUser;
 namespace RO.DevTest.Infrastructure.IoC;
 
 /// <summary>
@@ -39,6 +42,7 @@ public static class InfrastructureDependecyInjector
     {
         AddIdentityServices(services);
         AddSecurityServices(services, configuration);
+        AddJwtAuthentication(services, configuration);
 
         return services;
     }
@@ -75,12 +79,51 @@ public static class InfrastructureDependecyInjector
         var expirationTimeMinutes = configuration.GetValue<uint>("Settings:Jwt:ExpirationTimeMinutes");
         var signingKey = configuration.GetValue<string>("Settings:Jwt:SigningKey");
 
+        var identityAbstractor = services.BuildServiceProvider().GetRequiredService<IIdentityAbstractor>();
         services.AddScoped<IAccessTokenGenerator>(_ => 
-            new JwtTokenGenerator(expirationTimeMinutes, signingKey!));
-            
-        services.AddScoped<IAccessTokenValidator>(_ => 
-            new JwtTokenValidator(signingKey!));
+            new JwtTokenGenerator(expirationTimeMinutes, signingKey!, identityAbstractor));
 
         services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
+
+        services.AddScoped<ILoggedUser, LoggedUser>();
+    }
+
+    /// <summary>
+    /// Configures JWT authentication and authorization services.
+    /// Sets up the JWT Bearer authentication scheme with custom validation parameters
+    /// and defines authorization policies based on user roles.
+    /// </summary>
+    /// <param name="services">
+    /// The <see cref="IServiceCollection"/> to add authentication services to
+    /// </param>
+    /// <param name="configuration">
+    /// The <see cref="IConfiguration"/> containing JWT settings
+    /// </param>
+    private static void AddJwtAuthentication(IServiceCollection services, IConfiguration configuration)
+    {
+        var signingKey = configuration.GetValue<string>("Settings:Jwt:SigningKey");
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey!)),
+                ClockSkew = new TimeSpan(0),
+            };
+        });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer"));
+            options.AddPolicy("AdminOrCustomer", policy => policy.RequireRole("Admin", "Customer"));
+        });
     }
 }
