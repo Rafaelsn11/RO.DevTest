@@ -11,6 +11,9 @@ public class DefaultContext : IdentityDbContext<User> {
     public DefaultContext(DbContextOptions<DefaultContext> options) : base(options) { }
 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Sale> Sales { get; set; }
+    public DbSet<SaleItem> SaleItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder) {
         builder.HasPostgresExtension("uuid-ossp");
