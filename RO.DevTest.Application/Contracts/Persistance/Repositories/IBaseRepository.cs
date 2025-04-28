@@ -21,17 +21,17 @@ public interface IBaseRepository<T> where T : class {
     /// </param>
     /// <returns>
     /// The <typeparamref name="T"/> entity, if found. Null otherwise. </returns>
-    T? Get(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
+    Task<T?> GetAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
 
     /// <summary>
     /// Updates an entity entry on the database
     /// </summary>
     /// <param name="entity"> The entity to be added </param>
-    void Update(T entity);
+    Task UpdateAsync(T entity);
 
     /// <summary>
     /// Deletes one entry from the database
     /// </summary>
     /// <param name="entity"> The entity to be deleted </param>
-    void Delete(T entity);
+    Task DeleteAsync(T entity);
 }

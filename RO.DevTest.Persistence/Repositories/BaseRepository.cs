@@ -9,24 +9,27 @@ public class BaseRepository<T>(DefaultContext defaultContext) : IBaseRepository<
 
     protected DefaultContext Context { get => _defaultContext; }
 
-    public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default) {
+    public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default) 
+    {
         await Context.Set<T>().AddAsync(entity, cancellationToken);
         await Context.SaveChangesAsync(cancellationToken);
         return entity;
     }
 
-    public async void Update(T entity) {
+    public async Task UpdateAsync(T entity) 
+    {
         Context.Set<T>().Update(entity);
         await Context.SaveChangesAsync();
     }
 
-    public async void Delete(T entity) {
+    public async Task DeleteAsync(T entity) 
+    {
         Context.Set<T>().Remove(entity);
         await Context.SaveChangesAsync();
     }
 
-    public T? Get(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
-    => GetQueryWithIncludes(predicate, includes).FirstOrDefault();
+    public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+    => await GetQueryWithIncludes(predicate, includes).FirstOrDefaultAsync();
 
     /// <summary>
     /// Generates a filtered <see cref="IQueryable{T}"/>, based on its
@@ -45,7 +48,8 @@ public class BaseRepository<T>(DefaultContext defaultContext) : IBaseRepository<
     private IQueryable<T> GetQueryWithIncludes(
         Expression<Func<T, bool>> predicate,
         params Expression<Func<T, object>>[] includes
-    ) {
+    ) 
+    {
         IQueryable<T> baseQuery = GetWhereQuery(predicate);
 
         foreach(Expression<Func<T, object>> include in includes) {
@@ -66,7 +70,8 @@ public class BaseRepository<T>(DefaultContext defaultContext) : IBaseRepository<
     /// <returns>S
     /// The <see cref="IQueryable{T}"/>
     /// </returns>
-    private IQueryable<T> GetWhereQuery(Expression<Func<T, bool>> predicate) {
+    private IQueryable<T> GetWhereQuery(Expression<Func<T, bool>> predicate) 
+    {
         IQueryable<T> baseQuery = Context.Set<T>();
 
         if(predicate is not null) {
