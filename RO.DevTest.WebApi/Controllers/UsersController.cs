@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using RO.DevTest.Application.Features.User.Commands.ChangePasswordUserCommand;
 using RO.DevTest.Application.Features.User.Commands.CreateUserCommand;
+using RO.DevTest.Application.Features.User.Commands.DeleteUserCommand;
 using RO.DevTest.Application.Features.User.Commands.EditUserCommand;
 using RO.DevTest.Domain.Enums;
 using RO.DevTest.WebApi.Attributes;
@@ -40,6 +41,18 @@ public class UsersController(IMediator mediator) : Controller {
     public async Task<IActionResult> ChangePassword(ChangePasswordUserCommand request) 
     {
         await _mediator.Send(request);
+        return NoContent();
+    }
+
+    [HttpDelete]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [AuthorizeRoles(UserRoles.Admin, UserRoles.Customer)]
+    public async Task<IActionResult> DeleteUser()
+    {
+        await _mediator.Send(new DeleteUserCommand());
         return NoContent();
     }
 }
